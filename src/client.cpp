@@ -114,9 +114,10 @@ if (options.mode == BROWSE) {
 		std::cout << "Internal error in signature" << std::endl;
 		exit(1);
 	}
+
 	std::string res = client.BasketPutFile(options.basketid, options.filename, static_cast<void*>( content),
 			content_len, signature);
-	std::cout << "Res  "<<  res << std::endl;
+	std::cout <<  res << std::endl;
 }
 
 return 0;

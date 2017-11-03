@@ -48,23 +48,20 @@ class BasketServiceImpl final : public BaskApi::Service {
 	Status BasketPutFile(ServerContext* context,
 			const BasketPutFileRequest* request, BasketPutFileResponse* reply)
 					override {
-		std::string result;
+		bool result = false;
 		FileOperator fop(options);
 		RSAspace::RSAVerifyProvider rsa(options.pubkey_file);
 		std::string signature = request->signature();
 		const char * content = request->content().c_str();
 		int content_len = request->content().size();
-std::cout << signature << std::endl;
- 		//		char * content = request->
 		bool Authentic = rsa.RSAVerifyBase64( signature, content, content_len) ;
-		std::cout << Authentic << std::endl;
-		reply->set_success(result);
-		std::cout << "Put file request" << std::endl;
+//		std::cout << Authentic << std::endl;
+//		std::cout << "Put file request" << std::endl;
 		if(Authentic){
-			fop.PutFile(request->filename(), request->basketid(),
+			result = fop.PutFile(request->filename(), request->basketid(),
 					static_cast<const void*>(content),  content_len);
 		}
-
+		reply->set_success(result?"Saved file successfully":"Failed to save file");
 		return Status::OK;
 	}
 };
