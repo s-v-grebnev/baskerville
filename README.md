@@ -71,7 +71,7 @@ ID корзин для приема сообщений
 
 ## Сборка
 
-На данный момент решение упаковано в workspace для Eclipse.
+На данный момент решение упаковано в workspace для Eclipse. Есть также отдельный Makefile.
 Для сборки нужны: openssl, grpc++ (свежая ветка с git'а), protobuf.
 Две конфигурации Client и Server собирают клиент и сервер, соответственно.
 
@@ -109,3 +109,4 @@ service BaskApi{
 	rpc BasketPutFile(BasketPutFileRequest) returns (BasketPutFileResponse) {}
 }
 ```
+
