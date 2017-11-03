@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package BasketApi;
+
+message BasketListRequest{
+	string basketid = 1;
+}
+
+message BasketListResponse{
+	repeated string filenames = 1;
+}
+
+message BasketPutFileRequest{
+	string basketid = 1;
+	string filename = 2;
+	bytes content = 3;
+	string signature = 4;
+}
+
+message BasketPutFileResponse{
+	bool success = 1;
+}
+
+service BaskApi{
+	rpc BasketList(BasketListRequest) returns (BasketListResponse) {}
+	rpc BasketPutFile(BasketPutFileRequest) returns (BasketPutFileResponse) {}
+} 	
