@@ -20,7 +20,7 @@ ID корзин для приема сообщений
 
 ## Решение
 
-##Сервер
+## Сервер
 
 Сервер читает конфиг из файла config.txt.
 
@@ -43,7 +43,7 @@ ID корзин для приема сообщений
 
 Ключ и значение разделяются " = ".
 
-##Клиент
+## Клиент
 
 Клиент -- это cli-программа.
 
@@ -53,7 +53,59 @@ ID корзин для приема сообщений
 
 Параметры для запуска в режиме листания:
 
-**-b -h host:port -i basketid **
+**-b -h host:port -i basketid**
 
 Опции имеют и длинную форму.
 
+* -h, --host host:port : хост и порт сервера
+
+* -s, --send : режим отправки
+
+* -b, --browse : режим листания
+
+* -i, --basketid : идентификатор корзины
+
+* -f, --filename filename : имя файла для отправки
+
+* -k, --key keyfile.pem : имя файла с секретным ключом RSA в формате PEM.
+
+## Сборка
+
+На данный момент решение упаковано в workspace для Eclipse.
+Для сборки нужны: openssl, grpc++ (свежая ветка с git'а), protobuf.
+Две конфигурации Client и Server собирают клиент и сервер, соответственно.
+
+
+## Внутреннее устройство
+
+Общение клиент-сервер осуществляется через gRPC. Описание протокола такое:
+
+```
+syntax = "proto3";
+
+package BasketApi;
+
+message BasketListRequest{
+	string basketid = 1;
+}
+
+message BasketListResponse{
+	repeated string filenames = 1;
+}
+
+message BasketPutFileRequest{
+	string basketid = 1;
+	string filename = 2;
+	bytes content = 3;
+	string signature = 4;
+}
+
+message BasketPutFileResponse{
+	string success = 1;
+}
+
+service BaskApi{
+	rpc BasketList(BasketListRequest) returns (BasketListResponse) {}
+	rpc BasketPutFile(BasketPutFileRequest) returns (BasketPutFileResponse) {}
+}
+```
