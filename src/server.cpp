@@ -13,6 +13,10 @@
 #include <grpc++/security/server_credentials.h>
 #include "basket.grpc.pb.h"
 
+#include "soptions.hpp"
+#include "serverfileop.hpp"
+#include "rsa.hpp"
+
 using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerContext;
@@ -25,37 +29,62 @@ using BasketApi::BasketPutFileRequest;
 using BasketApi::BasketPutFileResponse;
 using BasketApi::BaskApi;
 
+ServerOptions options;
+
+
 class BasketServiceImpl final : public BaskApi::Service {
-  Status BasketList(ServerContext* context, const BasketListRequest* request,
-                  BasketListResponse* reply) override {
+	Status BasketList(ServerContext* context, const BasketListRequest* request,
+			BasketListResponse* reply) override {
 // request -> вытащить аргументы
-	  std::set<std::string> answer;
+		std::cout << request->basketid();
+		std::set<std::string> answer;
+		FileOperator fop(options);
+		answer = fop.BasketLS(request->basketid());
+		for (auto v : answer)
+			reply->add_filenames(v);
+		return Status::OK;
+	}
 
-//do the stuff!
+	Status BasketPutFile(ServerContext* context,
+			const BasketPutFileRequest* request, BasketPutFileResponse* reply)
+					override {
+		std::string result;
+		FileOperator fop(options);
+		RSAspace::RSAVerifyProvider rsa(options.pubkey_file);
+		std::string signature = request->signature();
+		const char * content = request->content().c_str();
+		int content_len = request->content().size();
+std::cout << signature << std::endl;
+ 		//		char * content = request->
+		bool Authentic = rsa.RSAVerifyBase64( signature, content, content_len) ;
+		std::cout << Authentic << std::endl;
+		reply->set_success(result);
+		std::cout << "Put file request" << std::endl;
+		if(Authentic){
+			fop.PutFile(request->filename(), request->basketid(),
+					static_cast<const void*>(content),  content_len);
+		}
 
-	  for (auto v : answer) reply->add_filenames(v);
-    return Status::OK;
-  }
-
-  Status BasketPutFile(ServerContext* context, const BasketPutFileRequest* request,
-		  BasketPutFileResponse* reply) override {
-	  bool result;
-	  reply->set_success(result);
-
-    return Status::OK;
-  }
+		return Status::OK;
+	}
 };
 
 void RunServer() {
-  std::string server_address("0.0.0.0:50051");
-  BasketServiceImpl service;
+	std::string server_address("0.0.0.0:50051");
+	BasketServiceImpl service;
 
-  ServerBuilder builder;
-  builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
-  builder.RegisterService(&service);
-  std::unique_ptr<Server> server(builder.BuildAndStart());
-  std::cout << "Server listening on " << server_address << std::endl;
-  server->Wait();
+	ServerBuilder builder;
+	builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+	builder.RegisterService(&service);
+	std::unique_ptr<Server> server(builder.BuildAndStart());
+	std::cout << "Server listening on " << server_address << std::endl;
+	server->Wait();
 }
 
+int main(int argc, char** argv) {
+	options.ParseFile("config.txt");
+	RunServer();
+	return 0;
+
+}
 

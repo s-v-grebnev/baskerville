@@ -158,7 +158,7 @@ void AddDescriptorsImpl() {
       "leRequest\022\020\n\010basketid\030\001 \001(\t\022\020\n\010filename\030"
       "\002 \001(\t\022\017\n\007content\030\003 \001(\014\022\021\n\tsignature\030\004 \001("
       "\t\"(\n\025BasketPutFileResponse\022\017\n\007success\030\001 "
-      "\001(\0102\254\001\n\007BaskApi\022K\n\nBasketList\022\034.BasketAp"
+      "\001(\t2\254\001\n\007BaskApi\022K\n\nBasketList\022\034.BasketAp"
       "i.BasketListRequest\032\035.BasketApi.BasketLi"
       "stResponse\"\000\022T\n\rBasketPutFile\022\037.BasketAp"
       "i.BasketPutFileRequest\032 .BasketApi.Baske"
@@ -1464,12 +1464,15 @@ BasketPutFileResponse::BasketPutFileResponse(const BasketPutFileResponse& from)
       _internal_metadata_(NULL),
       _cached_size_(0) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  success_ = from.success_;
+  success_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (from.success().size() > 0) {
+    success_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.success_);
+  }
   // @@protoc_insertion_point(copy_constructor:BasketApi.BasketPutFileResponse)
 }
 
 void BasketPutFileResponse::SharedCtor() {
-  success_ = false;
+  success_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   _cached_size_ = 0;
 }
 
@@ -1479,6 +1482,7 @@ BasketPutFileResponse::~BasketPutFileResponse() {
 }
 
 void BasketPutFileResponse::SharedDtor() {
+  success_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 
 void BasketPutFileResponse::SetCachedSize(int size) const {
@@ -1510,7 +1514,7 @@ void BasketPutFileResponse::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  success_ = false;
+  success_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   _internal_metadata_.Clear();
 }
 
@@ -1524,14 +1528,16 @@ bool BasketPutFileResponse::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // bool success = 1;
+      // string success = 1;
       case 1: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(8u /* 8 & 0xFF */)) {
-
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
-                 input, &success_)));
+            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_success()));
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            this->success().data(), static_cast<int>(this->success().length()),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "BasketApi.BasketPutFileResponse.success"));
         } else {
           goto handle_unusual;
         }
@@ -1564,9 +1570,14 @@ void BasketPutFileResponse::SerializeWithCachedSizes(
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // bool success = 1;
-  if (this->success() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteBool(1, this->success(), output);
+  // string success = 1;
+  if (this->success().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->success().data(), static_cast<int>(this->success().length()),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "BasketApi.BasketPutFileResponse.success");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      1, this->success(), output);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -1583,9 +1594,15 @@ void BasketPutFileResponse::SerializeWithCachedSizes(
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // bool success = 1;
-  if (this->success() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(1, this->success(), target);
+  // string success = 1;
+  if (this->success().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->success().data(), static_cast<int>(this->success().length()),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "BasketApi.BasketPutFileResponse.success");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        1, this->success(), target);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -1605,9 +1622,11 @@ size_t BasketPutFileResponse::ByteSizeLong() const {
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
   }
-  // bool success = 1;
-  if (this->success() != 0) {
-    total_size += 1 + 1;
+  // string success = 1;
+  if (this->success().size() > 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::StringSize(
+        this->success());
   }
 
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
@@ -1639,8 +1658,9 @@ void BasketPutFileResponse::MergeFrom(const BasketPutFileResponse& from) {
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from.success() != 0) {
-    set_success(from.success());
+  if (from.success().size() > 0) {
+
+    success_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.success_);
   }
 }
 
@@ -1668,7 +1688,7 @@ void BasketPutFileResponse::Swap(BasketPutFileResponse* other) {
 }
 void BasketPutFileResponse::InternalSwap(BasketPutFileResponse* other) {
   using std::swap;
-  swap(success_, other->success_);
+  success_.Swap(&other->success_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(_cached_size_, other->_cached_size_);
 }
@@ -1681,18 +1701,57 @@ void BasketPutFileResponse::InternalSwap(BasketPutFileResponse* other) {
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
 // BasketPutFileResponse
 
-// bool success = 1;
+// string success = 1;
 void BasketPutFileResponse::clear_success() {
-  success_ = false;
+  success_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-bool BasketPutFileResponse::success() const {
+const ::std::string& BasketPutFileResponse::success() const {
   // @@protoc_insertion_point(field_get:BasketApi.BasketPutFileResponse.success)
-  return success_;
+  return success_.GetNoArena();
 }
-void BasketPutFileResponse::set_success(bool value) {
+void BasketPutFileResponse::set_success(const ::std::string& value) {
   
-  success_ = value;
+  success_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
   // @@protoc_insertion_point(field_set:BasketApi.BasketPutFileResponse.success)
+}
+#if LANG_CXX11
+void BasketPutFileResponse::set_success(::std::string&& value) {
+  
+  success_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:BasketApi.BasketPutFileResponse.success)
+}
+#endif
+void BasketPutFileResponse::set_success(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  
+  success_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:BasketApi.BasketPutFileResponse.success)
+}
+void BasketPutFileResponse::set_success(const char* value, size_t size) {
+  
+  success_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:BasketApi.BasketPutFileResponse.success)
+}
+::std::string* BasketPutFileResponse::mutable_success() {
+  
+  // @@protoc_insertion_point(field_mutable:BasketApi.BasketPutFileResponse.success)
+  return success_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+::std::string* BasketPutFileResponse::release_success() {
+  // @@protoc_insertion_point(field_release:BasketApi.BasketPutFileResponse.success)
+  
+  return success_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+void BasketPutFileResponse::set_allocated_success(::std::string* success) {
+  if (success != NULL) {
+    
+  } else {
+    
+  }
+  success_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), success);
+  // @@protoc_insertion_point(field_set_allocated:BasketApi.BasketPutFileResponse.success)
 }
 
 #endif  // PROTOBUF_INLINE_NOT_IN_HEADERS

@@ -19,7 +19,13 @@ void ClientOptions::ParseOptions(int argc, char **argv) {
 		{	"key", 1, NULL, 'k'},
 		{	0,0,0,0}
 	};
+	if(argc <=1){
+		std::cout << "Usage:  " << std::endl;
+		std::cout << "Send mode:   -s -h host:port -f filename -i basketid -k key " << std::endl;
+		std::cout << "Browse mode: -b -h host:port -i basketid " << std::endl;
+		exit(1);
 
+	}
 	while((opt = getopt_long(argc, argv, "bf:h:i:k:s", longopts, NULL)) != -1) {
 		switch(opt) {
 			case 'h':

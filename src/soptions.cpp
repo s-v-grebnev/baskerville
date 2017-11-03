@@ -1,10 +1,6 @@
-//============================================================================
-// Name        : options.cpp
-// Author      : 
-// Version     :
-// Copyright   : Your copyright notice
-// Description : Hello World in C++, Ansi-style
-//============================================================================
+/*
+ * Classes and methods for parsing the server config file
+ */
 #include <iostream>
 #include <fstream>
 #include <set>
@@ -13,7 +9,7 @@
 #include <cstdlib>
 #include "soptions.hpp"
 
-bool ServerOptions::parseFile(const std::string& filename) {
+bool ServerOptions::ParseFile(const std::string& filename) {
 	try {
 		path = "";
 		pubkey_file = "";

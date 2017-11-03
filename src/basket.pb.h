@@ -513,17 +513,25 @@ class BasketPutFileResponse : public ::google::protobuf::Message /* @@protoc_ins
 
   // accessors -------------------------------------------------------
 
-  // bool success = 1;
+  // string success = 1;
   void clear_success();
   static const int kSuccessFieldNumber = 1;
-  bool success() const;
-  void set_success(bool value);
+  const ::std::string& success() const;
+  void set_success(const ::std::string& value);
+  #if LANG_CXX11
+  void set_success(::std::string&& value);
+  #endif
+  void set_success(const char* value);
+  void set_success(const char* value, size_t size);
+  ::std::string* mutable_success();
+  ::std::string* release_success();
+  void set_allocated_success(::std::string* success);
 
   // @@protoc_insertion_point(class_scope:BasketApi.BasketPutFileResponse)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  bool success_;
+  ::google::protobuf::internal::ArenaStringPtr success_;
   mutable int _cached_size_;
   friend struct protobuf_basket_2eproto::TableStruct;
 };
@@ -885,18 +893,57 @@ inline void BasketPutFileRequest::set_allocated_signature(::std::string* signatu
 
 // BasketPutFileResponse
 
-// bool success = 1;
+// string success = 1;
 inline void BasketPutFileResponse::clear_success() {
-  success_ = false;
+  success_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline bool BasketPutFileResponse::success() const {
+inline const ::std::string& BasketPutFileResponse::success() const {
   // @@protoc_insertion_point(field_get:BasketApi.BasketPutFileResponse.success)
-  return success_;
+  return success_.GetNoArena();
 }
-inline void BasketPutFileResponse::set_success(bool value) {
+inline void BasketPutFileResponse::set_success(const ::std::string& value) {
   
-  success_ = value;
+  success_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
   // @@protoc_insertion_point(field_set:BasketApi.BasketPutFileResponse.success)
+}
+#if LANG_CXX11
+inline void BasketPutFileResponse::set_success(::std::string&& value) {
+  
+  success_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:BasketApi.BasketPutFileResponse.success)
+}
+#endif
+inline void BasketPutFileResponse::set_success(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  
+  success_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:BasketApi.BasketPutFileResponse.success)
+}
+inline void BasketPutFileResponse::set_success(const char* value, size_t size) {
+  
+  success_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:BasketApi.BasketPutFileResponse.success)
+}
+inline ::std::string* BasketPutFileResponse::mutable_success() {
+  
+  // @@protoc_insertion_point(field_mutable:BasketApi.BasketPutFileResponse.success)
+  return success_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* BasketPutFileResponse::release_success() {
+  // @@protoc_insertion_point(field_release:BasketApi.BasketPutFileResponse.success)
+  
+  return success_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void BasketPutFileResponse::set_allocated_success(::std::string* success) {
+  if (success != NULL) {
+    
+  } else {
+    
+  }
+  success_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), success);
+  // @@protoc_insertion_point(field_set_allocated:BasketApi.BasketPutFileResponse.success)
 }
 
 #ifdef __GNUC__

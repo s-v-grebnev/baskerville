@@ -14,9 +14,20 @@ struct ServerOptions {
 	std::string path;
 	std::set<std::string> baskets;
 	std::string pubkey_file;
-
-	bool parseFile(const std::string& filename);
+	ServerOptions() {
+	}
+	ServerOptions& operator =(const ServerOptions& right) {
+		if (this == &right) {
+			return *this;
+		}
+		path = right.path;
+		pubkey_file = right.pubkey_file;
+		baskets = right.baskets;
+		return *this;
+	}
+	ServerOptions(const std::string& filename) {
+		ParseFile(filename);
+	}
+	bool ParseFile(const std::string& filename);
 };
 
-struct FileError {
-};

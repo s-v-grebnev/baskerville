@@ -3,6 +3,10 @@
 #include <string>
 #include <set>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #include <grpc/grpc.h>
 #include <grpc++/channel.h>
 #include <grpc++/client_context.h>
@@ -10,6 +14,9 @@
 #include <grpc++/create_channel.h>
 #include <grpc++/security/credentials.h>
 #include "basket.grpc.pb.h"
+
+#include "coptions.hpp"
+#include "rsa.hpp"
 
 using grpc::Channel;
 using grpc::ChannelArguments;
@@ -23,52 +30,94 @@ using BasketApi::BasketPutFileRequest;
 using BasketApi::BasketPutFileResponse;
 using BasketApi::BaskApi;
 
+
 class BasketClient {
- public:
-  BasketClient(std::shared_ptr<Channel> channel)
-      : stub_(BaskApi::NewStub(channel)) {}
+public:
+	BasketClient(std::shared_ptr<Channel> channel) :
+			stub_(BaskApi::NewStub(channel)) {
+	}
 
-  std::set<std::string> BasketList(const std::string& basketid) {
-	BasketListRequest request;
-    request.set_basketid(basketid);
-    BasketListResponse reply;
-    ClientContext context;
+	std::set<std::string> BasketList(const std::string& basketid) {
+		BasketListRequest request;
+		request.set_basketid(basketid);
+		BasketListResponse reply;
+		ClientContext context;
 
-    Status status = stub_->BasketList(&context, request, &reply);
-	std::set<std::string> result;
-    if (status.ok()) {
-    	  for(int i = 0; i < reply.filenames_size(); i++)
-    		  result.insert(reply.filenames(i));
-    }
-    return result;
-  }
+		Status status = stub_->BasketList(&context, request, &reply);
+		std::set<std::string> result;
+		if (status.ok()) {
+			for (int i = 0; i < reply.filenames_size(); i++)
+				result.insert(reply.filenames(i));
+		}
+		return result;
+	}
 
-  bool BasketPutFile(const std::string& basketid,
-		  	  	  	  const std::string& filename,
-					  const void * content,
-					  size_t content_len,
-					  const std::string &signature)
-  {
-  	BasketPutFileRequest request;
-      request.set_basketid(basketid);
-      request.set_filename(filename);
-      request.set_signature(signature);
-      request.set_content(content, content_len);
-      BasketPutFileResponse reply;
-      ClientContext context;
+	std::string BasketPutFile(const std::string& basketid,
+			const std::string& filename, const void * content,
+			size_t content_len, const std::string &signature) {
+		BasketPutFileRequest request;
+		request.set_basketid(basketid);
+		request.set_filename(filename);
+		request.set_signature(signature);
+		request.set_content(content, content_len);
+		BasketPutFileResponse reply;
+		ClientContext context;
 
-      Status status = stub_->BasketPutFile(&context, request, &reply);
-      return reply.success();
-    }
+		Status status = stub_->BasketPutFile(&context, request, &reply);
+		return reply.success();
+	}
 
- private:
-  std::unique_ptr<BaskApi::Stub> stub_;
+private:
+	std::unique_ptr<BaskApi::Stub> stub_;
 };
 
-int main(int argc, char** argv) {
-  BasketClient client(
-      grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials()));// ,ChannelArguments()));
-  std::set<std::string> reply = client.BasketList("user");
+size_t ReadFileContents(const std::string& filename, char ** content) {
+	size_t length;
+try {
+	struct stat st;
+	const char *str = filename.c_str();
+	stat(str, &st);
+	length = st.st_size;
+	std::ifstream input( filename, std::ios::binary );
+	*content = new char[length];
+	if(!input)
+		throw std::string ("cannot open file " + filename);
+	input.read(*content, length);
+	if(input.fail())
+		throw std::string ("error reading contents of " + filename);
+	input.close();
+}
+catch (const std::string& ex) {
+	std::cout<< "Error: " <<  ex << std::endl;
+	exit(1);
+}
+return length;
+}
 
-  return 0;
+int main(int argc, char** argv) {
+ClientOptions options;
+options.ParseOptions(argc, argv);
+
+BasketClient client(
+		grpc::CreateChannel(options.hostname,
+				grpc::InsecureChannelCredentials()));// , ChannelArguments()));
+if (options.mode == BROWSE) {
+	std::set<std::string> lst = client.BasketList(options.basketid);
+	for (auto v:lst)
+		std::cout << v << std::endl;
+} else if (options.mode == SEND) {
+	RSAspace::RSASignProvider signer(options.key);
+	char * content;
+	size_t content_len = ReadFileContents(options.filename, &content);
+	std::string signature = signer.RSASignBase64(content, content_len);
+	if(signature == ""){
+		std::cout << "Internal error in signature" << std::endl;
+		exit(1);
+	}
+	std::string res = client.BasketPutFile(options.basketid, options.filename, static_cast<void*>( content),
+			content_len, signature);
+	std::cout << "Res  "<<  res << std::endl;
+}
+
+return 0;
 }

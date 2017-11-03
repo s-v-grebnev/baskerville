@@ -9,6 +9,8 @@
 #include "rsa.hpp"
 #include "base64.hpp"
 
+namespace RSAspace{
+
 static constexpr size_t KEYREAD_BUFSIZE = 4096;
 
 RSASignProvider::RSASignProvider(const std::string& keyfile){
@@ -41,8 +43,6 @@ bool RSASignProvider::createPrivateRSA(std::string key) {
         return false;
     }
     rsa = PEM_read_bio_RSAPrivateKey(keybio, &rsa,NULL, NULL);
-std::cout << rsa << std::endl;
-
     return (rsa!=NULL);
 }
 
@@ -158,6 +158,7 @@ bool RSAVerifyProvider::RSAVerifyBase64(const std::string signature, const char*
     return (Authentic);
 }
 
+
 /*
 int zmain(){
     std::ifstream fh;
@@ -194,3 +195,4 @@ int zmain(){
     return 0;
 }
 */
+}

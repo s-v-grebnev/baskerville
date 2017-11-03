@@ -1,5 +1,5 @@
-Path = /home/sergej/baskets
-Pubkey = /home/sergej/baskets/pubkey.pk
+Path = /tmp/baskets
+Pubkey = /tmp/baskets/public.key.pem
 Basket = asdf1234
 Basket = sdfg2345
 Basket = qwertyui
