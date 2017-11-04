@@ -15,7 +15,7 @@ bool FileOperator::PutFile(const std::string& filename,
 		const int content_len) {
 
 	try {
-// check for appropriate basket
+// check that basket id is ok
 		bool flag = false;
 		for (auto v : options.baskets) {
 			if (v == basketid)
@@ -26,9 +26,10 @@ bool FileOperator::PutFile(const std::string& filename,
 		}
 
 		std::string abs_filename = options.path + '/' + basketid;
+
 		mkdir(abs_filename.c_str(), 0777); // error check
 
-		abs_filename = options.path + '/' + basketid + '/' 	+ filename;
+		abs_filename = options.path + '/' + basketid + '/' + filename;
 
 		std::ofstream fout;
 		fout.open(abs_filename, std::ios::binary | std::ios::out);
@@ -38,7 +39,6 @@ bool FileOperator::PutFile(const std::string& filename,
 				fout.close();
 				throw std::string("Error saving file");
 			}
-// XXX check for output!
 			fout.close();
 
 		} else
@@ -74,8 +74,7 @@ std::set<std::string> FileOperator::BasketLS(const std::string& basketid) {
 
 				}
 				closedir(dp);
-			}
-			else {
+			} else {
 				mkdir(abs_path.c_str(), 0777);
 			}
 

@@ -37,7 +37,7 @@ bool ServerOptions::ParseFile(const std::string& filename) {
 			}
 		}
 		fh.close();
-		if((path=="")||(pubkey_file=="")||(baskets.empty()))
+		if ((path == "") || (pubkey_file == "") || (baskets.empty()))
 			throw std::string("incomplete config file");
 	} catch (const std::string & ex) {
 		std::cout << "Error reading server config:" << ex << std::endl;
@@ -45,5 +45,4 @@ bool ServerOptions::ParseFile(const std::string& filename) {
 	}
 	return true;
 }
-
 

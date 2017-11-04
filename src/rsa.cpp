@@ -96,8 +96,7 @@ RSAVerifyProvider::RSAVerifyProvider(const std::string& keyfile) {
 		if (!createPublicRSA(s)) {
 			throw std::string("error loading RSA public key from file");
 		}
-	}
-	catch (const std::string ex) {
+	} catch (const std::string ex) {
 		std::cout << "Cannot continue: " << ex << std::endl;
 		exit(1);
 	}

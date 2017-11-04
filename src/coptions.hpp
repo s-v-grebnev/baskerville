@@ -9,13 +9,13 @@
 #include <string>
 
 constexpr bool BROWSE = false;
-constexpr  bool  SEND = true;
+constexpr bool SEND = true;
 
 struct ClientOptions {
-	std::string hostname  = "";
+	std::string hostname = "";
 	bool mode = BROWSE; // true -- send, false -- browse
 	std::string basketid = "";
-	std::string filename  = "";
-	std::string key  = "";
+	std::string filename = "";
+	std::string key = "";
 	void ParseOptions(int argc, char **argv);
 };
