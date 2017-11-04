@@ -37,3 +37,5 @@ doc: $(DOCS)
 clean:
 	rm -f $(CLEANOBJECTS) 
 	rm -f Doc/xanalysis.aux xanalysis.log
+	rm -f xanalysis.aux xanalysis.log
+	rm *.log
