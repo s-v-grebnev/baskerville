@@ -124,7 +124,9 @@ int main(int argc, char** argv) {
 		std::string res = client.BasketPutFile(options.basketid,
 				options.filename, static_cast<void*>(content), content_len,
 				signature);
-		std::cout << res << std::endl;
+		if(res != ""){
+			std::cout << res << std::endl;
+		}
 	}
 
 	return 0;

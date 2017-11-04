@@ -29,12 +29,11 @@ using BasketApi::BasketPutFileRequest;
 using BasketApi::BasketPutFileResponse;
 using BasketApi::BaskApi;
 
-ServerOptions options;
-
 class BasketServiceImpl final : public BaskApi::Service {
+
 	Status BasketList(ServerContext* context, const BasketListRequest* request,
 			BasketListResponse* reply) override {
-// request -> вытащить аргументы
+
 		std::cout << request->basketid();
 		std::set<std::string> answer;
 		FileOperator fop(options);
@@ -63,12 +62,21 @@ class BasketServiceImpl final : public BaskApi::Service {
 				result ? "Saved file successfully" : "Failed to save file");
 		return Status::OK;
 	}
+private:
+	ServerOptions options;
+public:
+	explicit BasketServiceImpl() {
+		options.ParseFile("config.txt");
+	}
+	std::string GetPort() {
+		return options.port;
+	}
 };
 
 void RunServer() {
 	std::string server_address("0.0.0.0");
-	server_address = server_address + ":" + options.port;
 	BasketServiceImpl service;
+	server_address = server_address + ":" + service.GetPort();
 
 	ServerBuilder builder;
 	builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
@@ -79,7 +87,7 @@ void RunServer() {
 }
 
 int main(int argc, char** argv) {
-	options.ParseFile("config.txt");
+
 	RunServer();
 	return 0;
 
