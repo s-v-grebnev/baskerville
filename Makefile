@@ -8,6 +8,7 @@ LIBS = -lgrpc++ -lprotobuf -lssl -lcrypto
 LDFLAGS = $(LIBS)
 CPPOBJECTS = src/base64.o src/basket.grpc.pb.o src/basket.pb.o src/coptions.o src/rsa.o src/serverfileop.o src/soptions.o
 EXEC = client server
+DOCS = Doc/xanalysis.tex
 
 OBJECTS = $(CPPOBJECTS) 
 CLEANOBJECTS = $(TARGET) $(OBJECTS)  $(EXEC)
@@ -29,5 +30,10 @@ server: src/server.cpp
 .cc.o:
 	@$(CPP) $(CPPFLAGS) -c $*.cc -o ./$*.o
 
+doc: $(DOCS)
+	xelatex Doc/xanalysis.tex
+	rm -f xanalysis.aux xanalysis.log
+
 clean:
 	rm -f $(CLEANOBJECTS) 
+	rm -f Doc/xanalysis.aux xanalysis.log

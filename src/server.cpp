@@ -57,9 +57,11 @@ class BasketServiceImpl final : public BaskApi::Service {
 		if (Authentic) {
 			result = fop.PutFile(request->filename(), request->basketid(),
 					static_cast<const void*>(content), content_len);
+			reply->set_success(
+					result ? "Saved file successfully" : "Failed to save file");
+		} else {
+			reply->set_success("Failed to save file: incorrect signature");
 		}
-		reply->set_success(
-				result ? "Saved file successfully" : "Failed to save file");
 		return Status::OK;
 	}
 private:
