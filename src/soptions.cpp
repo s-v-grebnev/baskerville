@@ -32,6 +32,8 @@ bool ServerOptions::ParseFile(const std::string& filename) {
 				path = m.str(2);
 			} else if (m.str(1) == "Pubkey") {
 				pubkey_file = m.str(2);
+			} else if (m.str(1) == "Port") {
+				port = m.str(2);
 			} else if (m.str(1) == "Basket") {
 				baskets.insert(m.str(2));
 			}

@@ -66,7 +66,8 @@ class BasketServiceImpl final : public BaskApi::Service {
 };
 
 void RunServer() {
-	std::string server_address("0.0.0.0:50051");
+	std::string server_address("0.0.0.0");
+	server_address = server_address + ":" + options.port;
 	BasketServiceImpl service;
 
 	ServerBuilder builder;

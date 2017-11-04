@@ -12,6 +12,7 @@
 
 struct ServerOptions {
 	std::string path;
+	std::string port = "10050";
 	std::set<std::string> baskets;
 	std::string pubkey_file;
 	ServerOptions() {
@@ -23,6 +24,7 @@ struct ServerOptions {
 		path = right.path;
 		pubkey_file = right.pubkey_file;
 		baskets = right.baskets;
+		port = right.port;
 		return *this;
 	}
 	ServerOptions(const std::string& filename) {
