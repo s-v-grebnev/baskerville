@@ -1,7 +1,5 @@
-CC = gcc
-CCOPTS = -O3 -m64 -g
+CPPOPTS = -O3 -m64 -g -std=c++11 -Wall
 CPP = g++
-CPPOPTS = $(CCOPTS)
 DEFS = 
 INCLUDES = -I. -I/usr/include/x86_64-linux-gnu/c++/4.9 -I/usr/include
 CCFLAGS = $(CCOPTS) $(DEFS) $(INCLUDES) 
@@ -15,6 +13,9 @@ OBJECTS = $(CPPOBJECTS)
 CLEANOBJECTS = $(TARGET) $(OBJECTS)  $(EXEC)
 
 all: $(OBJECTS) $(EXEC)
+
+release: $(OBJECTS) $(EXEC)
+	strip $(EXEC)
 
 client: src/client.cpp
 	$(CPP) $(CPPFLAGS) src/client.cpp $(CPPOBJECTS) $(LDFLAGS) -o client  
@@ -30,4 +31,3 @@ server: src/server.cpp
 
 clean:
 	rm -f $(CLEANOBJECTS) 
-	rm -f client server
