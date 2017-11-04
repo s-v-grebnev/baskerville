@@ -8,7 +8,7 @@ LIBS = -lgrpc++ -lprotobuf -lssl -lcrypto
 LDFLAGS = $(LIBS)
 CPPOBJECTS = src/base64.o src/basket.grpc.pb.o src/basket.pb.o src/coptions.o src/rsa.o src/serverfileop.o src/soptions.o
 EXEC = client server
-DOCS = Doc/xanalysis.tex
+DOCS = doc/xanalysis.pdf
 
 OBJECTS = $(CPPOBJECTS) 
 CLEANOBJECTS = $(TARGET) $(OBJECTS)  $(EXEC)
@@ -19,10 +19,10 @@ release: $(OBJECTS) $(EXEC)
 	strip $(EXEC)
 
 client: src/client.cpp
-	$(CPP) $(CPPFLAGS) src/client.cpp $(CPPOBJECTS) $(LDFLAGS) -o client  
+	$(CPP) $(CPPFLAGS) src/client.cpp $(CPPOBJECTS) $(LDFLAGS) -o src/client  
 
 server: src/server.cpp
-	$(CPP) $(CPPFLAGS) src/server.cpp $(CPPOBJECTS) $(LDFLAGS) -o server  
+	$(CPP) $(CPPFLAGS) src/server.cpp $(CPPOBJECTS) $(LDFLAGS) -o src/server  
 
 .cpp.o:
 	@$(CPP) $(CPPFLAGS) -c $*.cpp -o ./$*.o
@@ -30,12 +30,22 @@ server: src/server.cpp
 .cc.o:
 	@$(CPP) $(CPPFLAGS) -c $*.cc -o ./$*.o
 
-doc: $(DOCS)
-	xelatex Doc/xanalysis.tex
+doc: $(DOCS) 
+
+doc/xanalysis.pdf: doc/xanalysis.tex
+	xelatex doc/xanalysis.tex
 	rm -f xanalysis.aux xanalysis.log
+	mv xanalysis.pdf doc/
 
 clean:
 	rm -f $(CLEANOBJECTS) 
-	rm -f Doc/xanalysis.aux xanalysis.log
+	rm -f doc/xanalysis.aux doc/xanalysis.log
 	rm -f xanalysis.aux xanalysis.log
-	rm *.log
+	rm -f *.log
+
+distclean: clean
+	rm -f bin/client bin/server
+
+install: client server
+	cp src/client bin/
+	cp src/server bin/
