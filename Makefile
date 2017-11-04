@@ -11,7 +11,7 @@ EXEC = client server
 DOCS = doc/xanalysis.pdf
 
 OBJECTS = $(CPPOBJECTS) 
-CLEANOBJECTS = $(TARGET) $(OBJECTS)  $(EXEC)
+CLEANOBJECTS = $(TARGET) $(OBJECTS) src/client src/server
 
 all: $(OBJECTS) $(EXEC)
 
