@@ -16,6 +16,8 @@
 #include "soptions.hpp"
 #include "serverfileop.hpp"
 #include "rsa.hpp"
+#include <mutex>
+#include <unistd.h>
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -35,9 +37,9 @@ using BasketApi::BaskApi;
 
 class BasketServiceImpl final : public BaskApi::Service {
 
-/*
- * Режим листания, серверная часть
- */
+	/*
+	 * Режим листания, серверная часть
+	 */
 
 	Status BasketList(ServerContext* context, const BasketListRequest* request,
 			BasketListResponse* reply) override {
@@ -45,22 +47,24 @@ class BasketServiceImpl final : public BaskApi::Service {
 		std::cout << request->basketid();
 		std::set<std::string> answer;
 		FileOperator fop(options);
-
+		m_.lock();
 		answer = fop.BasketLS(request->basketid());
+		m_.unlock();
 		for (auto v : answer)
 			reply->add_filenames(v);
 		return Status::OK;
 	}
 
-/*
- * Режим отправки, серверная часть
- */
+	/*
+	 * Режим отправки, серверная часть
+	 */
 
 	Status BasketPutFile(ServerContext* context,
 			const BasketPutFileRequest* request, BasketPutFileResponse* reply)
 					override {
 		bool result = false;
 		FileOperator fop(options);
+		m_.lock();
 		RSAspace::RSAVerifyProvider rsa(options.pubkey_file);
 		std::string signature = request->signature();
 		const char * content = request->content().c_str();
@@ -75,24 +79,26 @@ class BasketServiceImpl final : public BaskApi::Service {
 		} else {
 			reply->set_success("Failed to save file: incorrect signature");
 		}
+		m_.unlock();
 		return Status::OK;
 	}
 private:
 	ServerOptions options;
+	std::mutex m_;
 public:
 	explicit BasketServiceImpl() {
 // В конструкторе надо распарсить конфиг-файл
 		options.ParseFile("config.txt");
 		if (mkdir(options.path.c_str(), 0777) == -1) {
-					if (errno != EEXIST) {
-						std::cout << "Cannot create basket directory" << std::endl;
-						exit(1);
-					}
-				}
+			if (errno != EEXIST) {
+				std::cout << "Cannot create basket directory" << std::endl;
+				exit(1);
+			}
+		}
 	}
-/*
- * Метод, возвращающий рабочий порт -- чтобы не таскать глобальные переменные
- */
+	/*
+	 * Метод, возвращающий рабочий порт -- чтобы не таскать глобальные переменные
+	 */
 	std::string GetPort() {
 		return options.port;
 	}
