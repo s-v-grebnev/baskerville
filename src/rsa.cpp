@@ -11,7 +11,7 @@
 
 namespace RSAspace {
 
-static constexpr size_t KEYREAD_BUFSIZE = 4096;
+static constexpr size_t KEYREAD_BUFSIZE = 10000;
 
 RSASignProvider::RSASignProvider(const std::string& keyfile) {
 	try {
