@@ -10,6 +10,9 @@
 #include <regex>
 #include <cstdlib>
 #include "soptions.hpp"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <errno.h>
 
 class FileOperator {
 public:

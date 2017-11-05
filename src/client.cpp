@@ -146,6 +146,7 @@ int main(int argc, char** argv) {
 			exit(1);
 		}
 // Вызываем метод gRPC
+// Предварительно преобразуем имя файла, убрав пути
 		std::string res = client.BasketPutFile(options.basketid,
 				std::string(basename(const_cast<char*>(options.filename.c_str()))),
 				static_cast<void*>(content), content_len,

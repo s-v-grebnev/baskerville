@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include <libgen.h>
 
 /*
  * Запись массива const void *content, длины const int content_len
@@ -41,8 +42,9 @@ bool FileOperator::PutFile(const std::string& filename,
 				throw std::string("Error creating basket");
 			}
 		}
-// Формируем абсолютный путь до файла
-		abs_filename = options.path + '/' + basketid + '/' + filename;
+// Формируем абсолютный путь до файла, убрав на всякий случай все лишние слэши
+		abs_filename = options.path + '/' + basketid + '/' +
+				std::string(basename(const_cast<char*>(filename.c_str())));
 // Переаписываем контент, проверяем ошибки
 		std::ofstream fout;
 		fout.open(abs_filename,

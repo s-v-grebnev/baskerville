@@ -83,6 +83,12 @@ public:
 	explicit BasketServiceImpl() {
 // В конструкторе надо распарсить конфиг-файл
 		options.ParseFile("config.txt");
+		if (mkdir(options.path.c_str(), 0777) == -1) {
+					if (errno != EEXIST) {
+						std::cout << "Cannot create basket directory" << std::endl;
+						exit(1);
+					}
+				}
 	}
 /*
  * Метод, возвращающий рабочий порт -- чтобы не таскать глобальные переменные
