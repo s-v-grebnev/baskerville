@@ -47,5 +47,5 @@ distclean: clean
 	rm -f bin/client bin/server
 
 install: client server
-	cp src/client bin/
-	cp src/server bin/
+	strip src/client -o bin/client
+	strip src/server bin/server

@@ -1,5 +1,5 @@
 /*
- * Methods for base64
+ *Работа с base64
  */
 
 #pragma once

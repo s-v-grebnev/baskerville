@@ -1,5 +1,5 @@
 /*
- * Methods for base64
+ * Работа с base64
  */
 
 #include <iostream>
@@ -10,6 +10,12 @@
 #include <openssl/pem.h>
 #include <openssl/bio.h>
 //#include <openssl/evp.h>
+
+/*
+ * Base64-кодирование строки
+ * Результат записывается в новый буфер base64Text (память выделяется malloc(),
+ * необходимо потом освободить )
+ */
 
 void Base64Encode(const unsigned char* buffer, size_t length,
 		char** base64Text) {
@@ -29,6 +35,10 @@ void Base64Encode(const unsigned char* buffer, size_t length,
 	*base64Text = (*bufferPtr).data;
 }
 
+/*
+ * Вычисление истинной длины base64-кодированной строки
+ */
+
 size_t calcDecodelength(const char * b64input) {
 	size_t len = std::strlen(b64input), padding = 0;
 	if (b64input[len - 1] == '=' && b64input[len - 2] == '=') {
@@ -38,6 +48,10 @@ size_t calcDecodelength(const char * b64input) {
 	}
 	return (len * 3) / 4 - padding;
 }
+
+/*
+ * Декодирование base64-строки
+ */
 
 void Base64Decode(const char *b64message, unsigned char **buffer,
 		size_t *length) {

@@ -1,5 +1,5 @@
 /*
- * Classes and methods for parsing the client command line
+ * Классы и методы для разбора опций командной строки
  */
 
 #pragma once
@@ -8,8 +8,12 @@
 #include <getopt.h>
 #include <string>
 
+// Для удобства дадим режимам названия
+
 constexpr bool BROWSE = false;
 constexpr bool SEND = true;
+
+// Опции клиента
 
 struct ClientOptions {
 	std::string hostname = "";

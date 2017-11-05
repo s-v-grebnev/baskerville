@@ -29,7 +29,15 @@ using BasketApi::BasketPutFileRequest;
 using BasketApi::BasketPutFileResponse;
 using BasketApi::BaskApi;
 
+/*
+ * Реализация серверной части протокола с помощью gRPC
+ */
+
 class BasketServiceImpl final : public BaskApi::Service {
+
+/*
+ * Режим листания, серверная часть
+ */
 
 	Status BasketList(ServerContext* context, const BasketListRequest* request,
 			BasketListResponse* reply) override {
@@ -37,11 +45,16 @@ class BasketServiceImpl final : public BaskApi::Service {
 		std::cout << request->basketid();
 		std::set<std::string> answer;
 		FileOperator fop(options);
+
 		answer = fop.BasketLS(request->basketid());
 		for (auto v : answer)
 			reply->add_filenames(v);
 		return Status::OK;
 	}
+
+/*
+ * Режим отправки, серверная часть
+ */
 
 	Status BasketPutFile(ServerContext* context,
 			const BasketPutFileRequest* request, BasketPutFileResponse* reply)
@@ -68,19 +81,28 @@ private:
 	ServerOptions options;
 public:
 	explicit BasketServiceImpl() {
+// В конструкторе надо распарсить конфиг-файл
 		options.ParseFile("config.txt");
 	}
+/*
+ * Метод, возвращающий рабочий порт -- чтобы не таскать глобальные переменные
+ */
 	std::string GetPort() {
 		return options.port;
 	}
 };
 
+/*
+ * Функция, запускающая сервер
+ */
+
 void RunServer() {
 	std::string server_address("0.0.0.0");
 	BasketServiceImpl service;
+// формируем параметры для создания сокета
 	server_address = server_address + ":" + service.GetPort();
-
 	ServerBuilder builder;
+// Магия gRPC
 	builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
 	builder.RegisterService(&service);
 	std::unique_ptr<Server> server(builder.BuildAndStart());

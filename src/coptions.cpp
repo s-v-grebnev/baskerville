@@ -1,11 +1,16 @@
 /*
- * Classes and methods for parsing the client command line
+ * Классы и методы для разбора опций командной строки
  */
 
 #include <iostream>
 #include <getopt.h>
 #include <string>
 #include "coptions.hpp"
+
+/*
+ * Разбор опций командной строки
+ * Аргументы -- передаются из аргументов main()
+ */
 
 void ClientOptions::ParseOptions(int argc, char **argv) {
 
@@ -44,10 +49,10 @@ void ClientOptions::ParseOptions(int argc, char **argv) {
 			key = optarg;
 			break;
 		case '?':
+// Непонятная опция -- выводим подсказку и выходим
 			std::cout << "Unknown option: " << opt << std::endl;
 			std::cout << "Usage:  " << std::endl;
-			std::cout
-					<< "Send mode:   -s -h host:port -f filename -i basketid -k key "
+			std::cout << "Send mode:   -s -h host:port -f filename -i basketid -k key "
 					<< std::endl;
 			std::cout << "Browse mode: -b -h host:port -i basketid "
 					<< std::endl;
@@ -57,19 +62,3 @@ void ClientOptions::ParseOptions(int argc, char **argv) {
 
 	}
 }
-/*
- using namespace std;
-
- int umain(int argc, char ** argv) {
- ClientOptions options;
- options.ParseOptions(argc, argv);
-
- cout << "hostname:" <<  options.hostname << endl;
- cout << "mode:" << (options.mode == BROWSE?"browse":"send") << endl;
- cout << "basketid:" << options.basketid << endl;
- cout << "filename: "<< options.filename  << endl;
- cout << "key:" << options.key << endl;
-
- return 0;
- }
- */

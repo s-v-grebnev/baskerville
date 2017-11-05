@@ -1,5 +1,5 @@
 /*
- * Classes and methods for parsing the server config file
+ * Разбор конфиг-файла сервера
  */
 
 #pragma once

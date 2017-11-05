@@ -10,6 +10,8 @@
 
 namespace RSAspace {
 
+// Криптопровайдер подписи
+
 class RSASignProvider {
 private:
 
@@ -28,6 +30,8 @@ public:
 	}
 	std::string RSASignBase64(const char* Msg, size_t MsgLen);
 };
+
+// Криптопровайдер проверки
 
 class RSAVerifyProvider {
 private:

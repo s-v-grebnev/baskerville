@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <libgen.h>
 
 #include <grpc/grpc.h>
 #include <grpc++/channel.h>
@@ -30,11 +31,18 @@ using BasketApi::BasketPutFileRequest;
 using BasketApi::BasketPutFileResponse;
 using BasketApi::BaskApi;
 
+/* Реализация клиентской части протокола с помощью gRPC
+ */
+
 class BasketClient {
 public:
 	BasketClient(std::shared_ptr<Channel> channel) :
 			stub_(BaskApi::NewStub(channel)) {
 	}
+
+/*
+ * Клиентская часть процедуры листания
+ */
 
 	std::set<std::string> BasketList(const std::string& basketid) {
 		BasketListRequest request;
@@ -52,6 +60,10 @@ public:
 		}
 		return result;
 	}
+
+/*
+ * Клиентская часть процедуры отправки файла
+ */
 
 	std::string BasketPutFile(const std::string& basketid,
 			const std::string& filename, const void * content,
@@ -78,6 +90,14 @@ private:
 	std::unique_ptr<BaskApi::Stub> stub_;
 };
 
+/* Вспомогательная функция для чтения содержимого файла в память
+* Аргументы:
+* const std::string& filename -- имя файла
+* char ** content -- указатель, в который сохраняется контент
+* Возвращает размер файла.
+* В случае ошибки чтения вызывает exit(1)
+*/
+
 size_t ReadFileContents(const std::string& filename, char ** content) {
 	size_t length;
 	try {
@@ -102,17 +122,22 @@ size_t ReadFileContents(const std::string& filename, char ** content) {
 
 int main(int argc, char** argv) {
 	ClientOptions options;
+// Разбираем командную строку
 	options.ParseOptions(argc, argv);
-
+// Магия gRPC
 	BasketClient client(
 			grpc::CreateChannel(options.hostname,
-					grpc::InsecureChannelCredentials())); // , ChannelArguments()));
-	if (options.mode == BROWSE) {
+					grpc::InsecureChannelCredentials()));
+	if (options.mode == BROWSE) {  // режим листания
+// Вызываем метод gRPC
 		std::set<std::string> lst = client.BasketList(options.basketid);
+// Выводим ответ
 		for (auto v : lst)
 			std::cout << v << std::endl;
-	} else if (options.mode == SEND) {
+	} else if (options.mode == SEND) { // режим отправки
+// Создаем криптопровайдера, загружаем секретный ключ
 		RSAspace::RSASignProvider signer(options.key);
+// Загружаем и подписываем контент
 		char * content;
 		size_t content_len = ReadFileContents(options.filename, &content);
 		std::string signature = signer.RSASignBase64(content, content_len);
@@ -120,13 +145,16 @@ int main(int argc, char** argv) {
 			std::cout << "Internal error in signature" << std::endl;
 			exit(1);
 		}
-
+// Вызываем метод gRPC
 		std::string res = client.BasketPutFile(options.basketid,
-				options.filename, static_cast<void*>(content), content_len,
+				std::string(basename(const_cast<char*>(options.filename.c_str()))),
+				static_cast<void*>(content), content_len,
 				signature);
 		if(res != ""){
 			std::cout << res << std::endl;
+// Выводим результат
 		}
+		delete content;
 	}
 
 	return 0;

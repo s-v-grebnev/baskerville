@@ -11,7 +11,13 @@
 
 namespace RSAspace {
 
+// Размер буфера для чтения ключей
 static constexpr size_t KEYREAD_BUFSIZE = 10000;
+
+/*
+ * Конструктор, инициализирующий криптопровайдер подписи
+ * ключом из const std::string& keyfile
+ */
 
 RSASignProvider::RSASignProvider(const std::string& keyfile) {
 	try {
@@ -34,6 +40,10 @@ RSASignProvider::RSASignProvider(const std::string& keyfile) {
 	}
 }
 
+/*
+ * Загрузка секретного ключа RSA из строки (формата PEM)
+ */
+
 bool RSASignProvider::createPrivateRSA(std::string key) {
 	rsa = NULL;
 	const char* c_string = key.c_str();
@@ -44,6 +54,11 @@ bool RSASignProvider::createPrivateRSA(std::string key) {
 	rsa = PEM_read_bio_RSAPrivateKey(keybio, &rsa, NULL, NULL);
 	return (rsa != NULL);
 }
+
+/*
+ * Метод, реализующий подпись сообщения const char* Msg длины size_t MsgLen,
+ * подпись помещается в буфер unsigned char** EncMsg длины size_t* MsgLenEnc
+ */
 
 bool RSASignProvider::RSASign(const char* Msg, size_t MsgLen,
 		unsigned char** EncMsg, size_t* MsgLenEnc) {
@@ -68,6 +83,11 @@ bool RSASignProvider::RSASign(const char* Msg, size_t MsgLen,
 	return true;
 }
 
+/*
+ * Метод, реализующий выработку подписи сообщения const char* Msg длины size_t MsgLen
+ * в строку в формате base64
+ */
+
 std::string RSASignProvider::RSASignBase64(const char* Msg, size_t MsgLen) {
 	unsigned char *sigbuf;
 	char *b64;
@@ -80,6 +100,12 @@ std::string RSASignProvider::RSASignBase64(const char* Msg, size_t MsgLen) {
 	free(b64);
 	return result;
 }
+
+/*
+ * Конструктор, инициализирующий криптопровайдер проверки
+ * ключом из const std::string& keyfile
+ */
+
 
 RSAVerifyProvider::RSAVerifyProvider(const std::string& keyfile) {
 	try {
@@ -102,6 +128,10 @@ RSAVerifyProvider::RSAVerifyProvider(const std::string& keyfile) {
 	}
 }
 
+/*
+ * Загрузка открытого ключа RSA из строки (формата PEM)
+ */
+
 bool RSAVerifyProvider::createPublicRSA(std::string key) {
 	rsa = NULL;
 	BIO *keybio;
@@ -114,7 +144,14 @@ bool RSAVerifyProvider::createPublicRSA(std::string key) {
 	return (rsa != NULL);
 }
 
-bool RSAVerifyProvider::RSAVerify(unsigned char* MsgHash, size_t MsgHashLen,
+
+/*
+ * Метод, реализующий проверку подписи unsigned char* MsgSig длины size_t MsgSigLen,
+ * от сообщения const char* Msg длины size_t MsgLen,
+ * результат записывается в bool* Authentic
+ */
+
+bool RSAVerifyProvider::RSAVerify(unsigned char* MsgSig, size_t MsgSigLen,
 		const char* Msg, size_t MsgLen, bool* Authentic) {
 	try {
 		*Authentic = false;
@@ -128,8 +165,8 @@ bool RSAVerifyProvider::RSAVerify(unsigned char* MsgHash, size_t MsgHashLen,
 		if (EVP_DigestVerifyUpdate(m_RSAVerifyCtx, Msg, MsgLen) <= 0) {
 			throw std::string("internal error in signature");
 		}
-		int AuthStatus = EVP_DigestVerifyFinal(m_RSAVerifyCtx, MsgHash,
-				MsgHashLen);
+		int AuthStatus = EVP_DigestVerifyFinal(m_RSAVerifyCtx, MsgSig,
+				MsgSigLen);
 		if (AuthStatus == 1) {
 			*Authentic = true;
 			//   EVP_MD_CTX_cleanup(m_RSAVerifyCtx);
@@ -151,50 +188,22 @@ bool RSAVerifyProvider::RSAVerify(unsigned char* MsgHash, size_t MsgHashLen,
 
 }
 
+
+/*
+ * Метод, реализующий проверку ифыу64-кодированной подписи const std::string signature
+ * от сообщения const char* Msg длины size_t MsgLen
+ */
+
 bool RSAVerifyProvider::RSAVerifyBase64(const std::string signature,
 		const char* Msg, size_t MsgLen) {
-	unsigned char* MsgHash;
-	size_t MsgHashLen;
+	unsigned char* MsgSig;
+	size_t MsgSigLen;
 	bool Authentic;
-	Base64Decode(signature.c_str(), &MsgHash, &MsgHashLen);
-	RSAVerify(MsgHash, MsgHashLen, Msg, MsgLen, &Authentic);
+	Base64Decode(signature.c_str(), &MsgSig, &MsgSigLen);
+	RSAVerify(MsgSig, MsgSigLen, Msg, MsgLen, &Authentic);
+	free(MsgSig);
 	return (Authentic);
 }
 
-/*
- int zmain(){
- std::ifstream fh;
- char buf[2000];
- std::string s;
- bool correct;
 
- RSASignProvider rsp("secret.key.pem");
- RSAVerifyProvider rvp("public.key.pem");
-
- char data[1024*1024];
-
- for(int i = 0; i < 1024*1024; i++) {data[i] = i % 256;}
-
- std::string siga = rsp.RSASignBase64(data, 1024*1024);
- std::cout << siga << std::endl;
-
- correct = rvp.RSAVerifyBase64(siga, reinterpret_cast<const char*>(data), 1024*1024);
-
- std::cout << correct << std::endl;
-
- data[1] += 1;
-
- correct = rvp.RSAVerifyBase64(siga, reinterpret_cast<const char*>(data), 1024*1024);
-
- std::cout << correct << std::endl;
-
- siga = rsp.RSASignBase64(data, 1024*1024);
- std::cout << siga << std::endl;
- correct = rvp.RSAVerifyBase64(siga, reinterpret_cast<const char*>(data), 1024*1024);
-
- std::cout << correct << std::endl;
-
- return 0;
- }
- */
-}
+} // namespace

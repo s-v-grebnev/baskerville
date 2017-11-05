@@ -1,5 +1,5 @@
 /*
- * Classes and methods for parsing the server config file
+ * Разбор конфиг-файла сервера
  */
 #include <iostream>
 #include <fstream>
@@ -8,6 +8,10 @@
 #include <regex>
 #include <cstdlib>
 #include "soptions.hpp"
+
+/*
+ * Разбор опций из файла const std::string& filename
+ */
 
 bool ServerOptions::ParseFile(const std::string& filename) {
 	try {

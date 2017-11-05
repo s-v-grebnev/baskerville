@@ -1,3 +1,6 @@
+/*
+ * Работа с файлами на стороне сервера
+ */
 #pragma once
 
 #include <iostream>
@@ -22,6 +25,7 @@ private:
 	ServerOptions options;
 };
 
+// Специальные исключения
 struct InvalidBasket {
 };
 struct DirectoryError {
