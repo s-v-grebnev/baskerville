@@ -2,6 +2,7 @@
 #include <memory>
 #include <string>
 #include <set>
+#include <thread>
 
 #include <grpc/grpc.h>
 #include <grpc++/channel.h>
@@ -43,8 +44,6 @@ class BasketServiceImpl final : public BaskApi::Service {
 
 	Status BasketList(ServerContext* context, const BasketListRequest* request,
 			BasketListResponse* reply) override {
-
-		std::cout << request->basketid();
 		std::set<std::string> answer;
 		FileOperator fop(options);
 		m_.lock();
