@@ -15,6 +15,10 @@ CPP_SRCS += \
 ../src/serverfileop.cpp \
 ../src/soptions.cpp 
 
+O_SRCS += \
+../src/client.o \
+../src/server.o 
+
 CC_DEPS += \
 ./src/basket.grpc.pb.d \
 ./src/basket.pb.d 

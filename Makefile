@@ -1,7 +1,7 @@
 CPPOPTS = -O3 -m64 -g -std=c++11 -Wall
 CPP = g++
 DEFS = 
-INCLUDES = -I. -I/usr/include/x86_64-linux-gnu/c++/4.9 -I/usr/include
+INCLUDES = -I. -I/usr/include
 CCFLAGS = $(CCOPTS) $(DEFS) $(INCLUDES) 
 CPPFLAGS = $(CPPOPTS) $(DEFS) $(INCLUDES) 
 LIBS = -lgrpc++ -lprotobuf -lssl -lcrypto 
@@ -15,13 +15,10 @@ CLEANOBJECTS = $(TARGET) $(OBJECTS) src/client src/server
 
 all: $(OBJECTS) $(EXEC)
 
-release: $(OBJECTS) $(EXEC)
-	strip $(EXEC)
-
-client: src/client.cpp
+client: src/client.cpp $(OBJECTS)
 	$(CPP) $(CPPFLAGS) src/client.cpp $(CPPOBJECTS) $(LDFLAGS) -o src/client  
 
-server: src/server.cpp
+server: src/server.cpp  $(OBJECTS)
 	$(CPP) $(CPPFLAGS) src/server.cpp $(CPPOBJECTS) $(LDFLAGS) -o src/server  
 
 .cpp.o:

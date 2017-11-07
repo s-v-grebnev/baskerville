@@ -2,6 +2,7 @@
 #include <memory>
 #include <string>
 #include <set>
+#include <vector>
 #include <thread>
 
 #include <grpc/grpc.h>
@@ -32,6 +33,8 @@ using BasketApi::BasketPutFileRequest;
 using BasketApi::BasketPutFileResponse;
 using BasketApi::BaskApi;
 
+std::mutex m_;
+
 /*
  * Реализация серверной части протокола с помощью gRPC
  */
@@ -44,7 +47,7 @@ class BasketServiceImpl final : public BaskApi::Service {
 
 	Status BasketList(ServerContext* context, const BasketListRequest* request,
 			BasketListResponse* reply) override {
-		std::set<std::string> answer;
+		std::vector<std::string> answer;
 		FileOperator fop(options);
 		m_.lock();
 		answer = fop.BasketLS(request->basketid());
@@ -83,7 +86,7 @@ class BasketServiceImpl final : public BaskApi::Service {
 	}
 private:
 	ServerOptions options;
-	std::mutex m_;
+
 public:
 	explicit BasketServiceImpl() {
 // В конструкторе надо распарсить конфиг-файл

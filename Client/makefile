@@ -38,19 +38,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: baskerville
+all: Client
 
 # Tool invocations
-baskerville: $(OBJS) $(USER_OBJS)
+Client: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C++ Linker'
-	g++ -L/usr/local/lib -L/home/neroot/grpc/grpc/libs/opt -o "baskerville" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++ -L/usr/local/lib -L/home/neroot/grpc/grpc/libs/opt -o "Client" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(CC_DEPS)$(C++_DEPS)$(EXECUTABLES)$(C_UPPER_DEPS)$(CXX_DEPS)$(OBJS)$(CPP_DEPS)$(C_DEPS) baskerville
+	-$(RM) $(CC_DEPS)$(C++_DEPS)$(EXECUTABLES)$(C_UPPER_DEPS)$(CXX_DEPS)$(OBJS)$(CPP_DEPS)$(C_DEPS) Client
 	-@echo ' '
 
 .PHONY: all clean dependents

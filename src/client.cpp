@@ -2,6 +2,7 @@
 #include <memory>
 #include <string>
 #include <set>
+#include <vector>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -44,17 +45,17 @@ public:
  * Клиентская часть процедуры листания
  */
 
-	std::set<std::string> BasketList(const std::string& basketid) {
+	std::vector<std::string> BasketList(const std::string& basketid) {
 		BasketListRequest request;
 		request.set_basketid(basketid);
 		BasketListResponse reply;
 		ClientContext context;
 
 		Status status = stub_->BasketList(&context, request, &reply);
-		std::set<std::string> result;
+		std::vector<std::string> result;
 		if (status.ok()) {
 			for (int i = 0; i < reply.filenames_size(); i++)
-				result.insert(reply.filenames(i));
+				result.push_back(reply.filenames(i));
 		} else {
 			std::cout << "GRPC error: " << status.error_message() << std::endl;
 		}
@@ -130,7 +131,7 @@ int main(int argc, char** argv) {
 					grpc::InsecureChannelCredentials()));
 	if (options.mode == BROWSE) {  // режим листания
 // Вызываем метод gRPC
-		std::set<std::string> lst = client.BasketList(options.basketid);
+		std::vector<std::string> lst = client.BasketList(options.basketid);
 // Выводим ответ
 		for (auto v : lst)
 			std::cout << v << std::endl;

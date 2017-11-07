@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <set>
+#include <vector>
 #include <string>
 #include <regex>
 #include "soptions.hpp"
@@ -74,8 +75,8 @@ bool FileOperator::PutFile(const std::string& filename,
  * результат выводится в виде std::set<std::string>.
  */
 
-std::set<std::string> FileOperator::BasketLS(const std::string& basketid) {
-	std::set<std::string> result;
+std::vector<std::string> FileOperator::BasketLS(const std::string& basketid) {
+	std::vector<std::string> result;
 	try {
 		for (auto v : options.baskets)
 			if (v == basketid) {
@@ -94,15 +95,9 @@ std::set<std::string> FileOperator::BasketLS(const std::string& basketid) {
 							break;
 						if ((std::string(de->d_name) != ".")
 								&& (std::string(de->d_name) != ".."))
-							result.insert(std::string(de->d_name));
-
+							result.push_back(std::string(de->d_name));
 					}
 					closedir(dp);
-				} else {
-// Если корзина не существует -- пытаемся ее создать
-					if (mkdir(abs_path.c_str(), 0777) == -1) {
-						throw std::string("Error creating basket");
-					}
 				}
 			}
 	} catch (const std::string & ex) {
