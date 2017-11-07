@@ -144,7 +144,6 @@ bool RSAVerifyProvider::createPublicRSA(std::string key) {
 	return (rsa != NULL);
 }
 
-
 /*
  * Метод, реализующий проверку подписи unsigned char* MsgSig длины size_t MsgSigLen,
  * от сообщения const char* Msg длины size_t MsgLen,
@@ -180,14 +179,11 @@ bool RSAVerifyProvider::RSAVerify(unsigned char* MsgSig, size_t MsgSigLen,
 			//   EVP_MD_CTX_cleanup(m_RSAVerifyCtx);
 			throw std::string("internal error in signature");
 		}
-
 	} catch (std::string & ex) {
 		std::cout << "Internal error in signature";
 		exit(1);
 	}
-
 }
-
 
 /*
  * Метод, реализующий проверку ифыу64-кодированной подписи const std::string signature

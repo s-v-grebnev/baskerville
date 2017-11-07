@@ -25,7 +25,7 @@ bool ServerOptions::ParseFile(const std::string& filename) {
 		}
 		while (!fh.eof()) {
 			getline(fh, buf);
-			std::regex r("(.*) = (.*)");
+			std::regex r("(.*)=(.*)");
 			std::smatch m;
 			auto pos = buf.cbegin();
 			auto end = buf.cend();
