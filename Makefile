@@ -4,7 +4,7 @@ DEFS =
 INCLUDES = -I. -I/usr/include
 CCFLAGS = $(CCOPTS) $(DEFS) $(INCLUDES) 
 CPPFLAGS = $(CPPOPTS) $(DEFS) $(INCLUDES) 
-LIBS = -lgrpc++ -lprotobuf -lssl -lcrypto 
+LIBS = -lgrpc++ -lprotobuf -lssl -lcrypto -lpthread
 LDFLAGS = $(LIBS)
 CPPOBJECTS = src/base64.o src/basket.grpc.pb.o src/basket.pb.o src/coptions.o src/rsa.o src/serverfileop.o src/soptions.o
 EXEC = client server
@@ -15,11 +15,14 @@ CLEANOBJECTS = $(TARGET) $(OBJECTS) src/client src/server src/client.o src/serve
 
 all: $(OBJECTS) $(EXEC)
 
-client: src/client.cpp $(OBJECTS)
-	$(CPP) $(CPPFLAGS) src/client.cpp $(CPPOBJECTS) $(LDFLAGS) -o src/client  
+client: src/client.o $(OBJECTS)
+#	$(CPP) $(CPPFLAGS) src/client.cpp $(CPPOBJECTS) $(LDFLAGS) -o src/client  
+	$(CPP)  src/client.o $(OBJECTS) $(LDFLAGS) -o src/client
+	strip src/client -o bin/client
 
-server: src/server.cpp  $(OBJECTS)
-	$(CPP) $(CPPFLAGS) src/server.cpp $(CPPOBJECTS) $(LDFLAGS) -o src/server  
+server: src/server.o  $(OBJECTS)
+	$(CPP)  src/server.o $(OBJECTS) $(LDFLAGS) -o src/server
+	strip src/server -o bin/server
 
 .cpp.o:
 	@$(CPP) $(CPPFLAGS) -c $*.cpp -o ./$*.o
@@ -42,7 +45,3 @@ clean:
 
 distclean: clean
 	rm -f bin/client bin/server
-
-install: all
-	strip src/client -o bin/client
-	strip src/server -o bin/server
