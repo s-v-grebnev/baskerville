@@ -34,7 +34,7 @@ doc: $(DOCS)
 
 doc/xanalysis.pdf: doc/xanalysis.tex
 	xelatex doc/xanalysis.tex
-	rm -f xanalysis.aux xanalysis.log
+	rm -f xanalysis.aux xanalysis.log doc/xanalysis.synctex.gz
 	mv xanalysis.pdf doc/
 
 clean:
