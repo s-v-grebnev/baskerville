@@ -17,13 +17,20 @@ namespace RSAspace {
 
 // Криптопровайдер подписи
 
-class RSASignProvider {
-private:
+class RSAProvider{
+protected:
 	RSA_ptr rsa;
+public:
+	RSAProvider() : rsa(nullptr, ::RSA_free) {};
+//	virtual void LoadKey(const std::string& keyfile);
+	~RSAProvider() {}
+};
+
+class RSASignProvider : private RSAProvider{
+private:
 	bool RSASign(const char* Msg, size_t MsgLen, unsigned char** EncMsg,
 			size_t* MsgLenEnc);
 public:
-	RSASignProvider() : rsa(nullptr, ::RSA_free) {};
 	void LoadKey(const std::string& keyfile);
  	~RSASignProvider() {}
 	std::string RSASignBase64(const char* Msg, size_t MsgLen);
@@ -31,13 +38,11 @@ public:
 
 // Криптопровайдер проверки
 
-class RSAVerifyProvider {
+class RSAVerifyProvider : private RSAProvider{
 private:
-	RSA_ptr rsa;
-	bool RSAVerify(char* MsgHash, size_t MsgHashLen, const char* Msg,
+		bool RSAVerify(char* MsgHash, size_t MsgHashLen, const char* Msg,
 			size_t MsgLen, bool* Authentic);
 public:
-	RSAVerifyProvider() : rsa(nullptr, ::RSA_free) {};
 	void LoadKey(const std::string& keyfile);
 	~RSAVerifyProvider() {}
 	bool RSAVerifyBase64(const std::string & signature, const char* Msg,
