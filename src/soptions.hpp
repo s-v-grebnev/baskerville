@@ -12,7 +12,7 @@
 
 struct ServerOptions {
 	std::string path;
-	std::string port = "10050";
+	std::string port { "10050"};
 	std::set<std::string> baskets;
 	std::string pubkey_file;
 	ServerOptions() {

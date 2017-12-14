@@ -137,7 +137,8 @@ int main(int argc, char** argv) {
 			std::cout << v << std::endl;
 	} else if (options.mode == SEND) { // режим отправки
 // Создаем криптопровайдера, загружаем секретный ключ
-		RSAspace::RSASignProvider signer(options.key);
+		RSAspace::RSASignProvider signer;
+		signer.LoadKey(options.key);
 // Загружаем и подписываем контент
 		char * content;
 		size_t content_len = ReadFileContents(options.filename, &content);

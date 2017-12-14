@@ -49,9 +49,8 @@ class BasketServiceImpl final : public BaskApi::Service {
 			BasketListResponse* reply) override {
 		std::vector<std::string> answer;
 		FileOperator fop(options);
-		m_.lock();
+		std::lock_guard<std::mutex> l_(m_);
 		answer = fop.BasketLS(request->basketid());
-		m_.unlock();
 		for (auto v : answer)
 			reply->add_filenames(v);
 		return Status::OK;
@@ -66,8 +65,9 @@ class BasketServiceImpl final : public BaskApi::Service {
 					override {
 		bool result = false;
 		FileOperator fop(options);
-		m_.lock();
-		RSAspace::RSAVerifyProvider rsa(options.pubkey_file);
+		std::lock_guard<std::mutex> l_(m_);
+		RSAspace::RSAVerifyProvider rsa;
+		rsa.LoadKey(options.pubkey_file);
 		std::string signature = request->signature();
 		const char * content = request->content().c_str();
 		int content_len = request->content().size();
@@ -75,13 +75,12 @@ class BasketServiceImpl final : public BaskApi::Service {
 
 		if (Authentic) {
 			result = fop.PutFile(request->filename(), request->basketid(),
-					static_cast<const void*>(content), content_len);
+					content, content_len);
 			reply->set_success(
 					result ? "Saved file successfully" : "Failed to save file");
 		} else {
 			reply->set_success("Failed to save file: incorrect signature");
 		}
-		m_.unlock();
 		return Status::OK;
 	}
 private:

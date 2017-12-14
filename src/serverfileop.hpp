@@ -2,7 +2,7 @@
  * Работа с файлами на стороне сервера
  */
 #pragma once
-
+#include <memory>
 #include <iostream>
 #include <fstream>
 #include <set>
@@ -22,7 +22,7 @@ public:
 	}
 	;
 	bool PutFile(const std::string& filename, const std::string& basketid,
-			const void *content, const int content_len);
+			const char * content, const int content_len);
 	std::vector<std::string> BasketLS(const std::string& basketid);
 
 private:

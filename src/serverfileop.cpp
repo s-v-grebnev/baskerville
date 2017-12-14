@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include <regex>
+#include <memory>
 #include "soptions.hpp"
 #include "serverfileop.hpp"
 
@@ -22,7 +23,7 @@
  */
 
 bool FileOperator::PutFile(const std::string& filename,
-		const std::string& basketid, const void *content,
+		const std::string& basketid, const char * content,
 		const int content_len) {
 
 	try {
@@ -46,7 +47,7 @@ bool FileOperator::PutFile(const std::string& filename,
 // Формируем абсолютный путь до файла, убрав на всякий случай все лишние слэши
 		abs_filename = options.path + '/' + basketid + '/' +
 				std::string(basename(const_cast<char*>(filename.c_str())));
-// Переаписываем контент, проверяем ошибки
+// Перезаписываем контент, проверяем ошибки
 		std::ofstream fout;
 		fout.open(abs_filename,
 				std::ios::binary | std::ios::out | std::ios::trunc);
