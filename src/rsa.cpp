@@ -135,9 +135,8 @@ void RSAVerifyProvider::LoadKey(const std::string & keyfile){
  * результат записывается в bool* Authentic
  */
 
-bool RSAVerifyProvider::RSAVerify(const std::string& Sig, const std::string&  Msg, bool* Authentic) {
+bool RSAVerifyProvider::RSAVerify(const std::string& Sig, const std::string&  Msg) {
 	try {
-		*Authentic = false;
 		EVP_KEY_ptr pubKey (EVP_PKEY_new(), ::EVP_PKEY_free);
 		EVP_PKEY_set1_RSA(pubKey.get(), rsa.get());
 		EVP_MD_CTX_ptr m_RSAVerifyCtx ( EVP_MD_CTX_create(), ::EVP_MD_CTX_free);
@@ -152,13 +151,10 @@ bool RSAVerifyProvider::RSAVerify(const std::string& Sig, const std::string&  Ms
 		int AuthStatus = EVP_DigestVerifyFinal(m_RSAVerifyCtx.get(), (const unsigned char*)Sig.c_str(),
 				Sig.size());
 		if (AuthStatus == 1) {
-			*Authentic = true;
 			return true;
 		} else if (AuthStatus == 0) {
-			*Authentic = false;
-			return true;
+			return false;
 		} else {
-			*Authentic = false;
 			throw std::runtime_error("internal error in signature");
 		}
 	} catch (std::runtime_error & ex) {
@@ -175,12 +171,9 @@ bool RSAVerifyProvider::RSAVerify(const std::string& Sig, const std::string&  Ms
 bool RSAVerifyProvider::RSAVerifyBase64(const std::string & signature,
 		const std::string & content) {
 
-	bool Authentic;
 	std::string sig64  = base64_decode(signature);
 
-	RSAVerify(sig64, content, &Authentic);
-
-	return (Authentic);
+	return (RSAVerify(sig64, content));
 }
 
 

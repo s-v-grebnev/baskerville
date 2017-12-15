@@ -44,7 +44,7 @@ public:
 
 class RSAVerifyProvider : private RSAProvider{
 private:
-	bool RSAVerify(const std::string& Sig, const std::string& Msg, bool* Authentic);
+	bool RSAVerify(const std::string& Sig, const std::string& Msg);
 public:
 	void LoadKey(const std::string& keyfile);
 	~RSAVerifyProvider() {}
