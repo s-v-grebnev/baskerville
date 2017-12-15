@@ -23,8 +23,7 @@
  */
 
 bool FileOperator::PutFile(const std::string& filename,
-		const std::string& basketid, const char * content,
-		const int content_len) {
+		const std::string& basketid, const std::string& content) {
 
 	try {
 // Проверяем id корзины
@@ -52,7 +51,7 @@ bool FileOperator::PutFile(const std::string& filename,
 		fout.open(abs_filename,
 				std::ios::binary | std::ios::out | std::ios::trunc);
 		if (fout) {
-			fout.write(static_cast<const char*>(content), content_len);
+			fout.write(static_cast<const char*>(content.c_str()), content.size());
 			if (fout.bad()) {
 				fout.close();
 				throw std::runtime_error("Error saving file");

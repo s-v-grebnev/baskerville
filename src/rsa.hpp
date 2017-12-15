@@ -1,8 +1,13 @@
+/*
+ * Классы и методы для работы с цифровой подписью RSA
+ */
+
 #pragma once
 
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 #include <openssl/rsa.h>
 #include <openssl/bio.h>
 #include <openssl/pem.h>
@@ -28,25 +33,22 @@ public:
 
 class RSASignProvider : private RSAProvider{
 private:
-	bool RSASign(const char* Msg, size_t MsgLen, unsigned char** EncMsg,
-			size_t* MsgLenEnc);
+	std::vector<char> RSASign(const std::vector<char> Msg);
 public:
 	void LoadKey(const std::string& keyfile);
  	~RSASignProvider() {}
-	std::string RSASignBase64(const char* Msg, size_t MsgLen);
+	std::string RSASignBase64(const std::vector<char> Msg);
 };
 
 // Криптопровайдер проверки
 
 class RSAVerifyProvider : private RSAProvider{
 private:
-		bool RSAVerify(char* MsgHash, size_t MsgHashLen, const char* Msg,
-			size_t MsgLen, bool* Authentic);
+	bool RSAVerify(const std::string& Sig, const std::string& Msg, bool* Authentic);
 public:
 	void LoadKey(const std::string& keyfile);
 	~RSAVerifyProvider() {}
-	bool RSAVerifyBase64(const std::string & signature, const char* Msg,
-			size_t MsgLen);
+	bool RSAVerifyBase64(const std::string & signature, const std::string& content);
 };
 
 } // namespace

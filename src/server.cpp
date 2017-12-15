@@ -69,13 +69,11 @@ class BasketServiceImpl final : public BaskApi::Service {
 		RSAspace::RSAVerifyProvider rsa;
 		rsa.LoadKey(options.pubkey_file);
 		std::string signature = request->signature();
-		const char * content = request->content().c_str();
-		int content_len = request->content().size();
-		bool Authentic = rsa.RSAVerifyBase64(signature, content, content_len);
+		std::string content = request->content();
+		bool Authentic = rsa.RSAVerifyBase64(signature, content);
 
 		if (Authentic) {
-			result = fop.PutFile(request->filename(), request->basketid(),
-					content, content_len);
+			result = fop.PutFile(request->filename(), request->basketid(), content);
 			reply->set_success(
 					result ? "Saved file successfully" : "Failed to save file");
 		} else {

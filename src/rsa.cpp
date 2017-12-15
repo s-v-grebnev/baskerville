@@ -1,9 +1,10 @@
 /*
- * Classes and methods for digital signature context creation, generation, verification
+ * Классы и методы для работы с цифровой подписью RSA
  */
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
 #include <openssl/evp.h>
@@ -57,27 +58,27 @@ void RSASignProvider::LoadKey(const std::string& keyfile) {
  * подпись помещается в буфер unsigned char** EncMsg длины size_t* MsgLenEnc
  */
 
-bool RSASignProvider::RSASign(const char* Msg, size_t MsgLen,
-		unsigned char** EncMsg, size_t* MsgLenEnc) {
+std::vector<char> RSASignProvider::RSASign(const std::vector<char> Msg) {
+	std::vector<char> res;
+	size_t MsgLenEnc;
 	EVP_MD_CTX_ptr m_RSASignCtx(EVP_MD_CTX_create(), ::EVP_MD_CTX_free);
 	EVP_KEY_ptr priKey (EVP_PKEY_new(), ::EVP_PKEY_free);
 	EVP_PKEY_set1_RSA(priKey.get(), rsa.get());
 	if (EVP_DigestSignInit(m_RSASignCtx.get(), NULL, EVP_sha512(), NULL, priKey.get())
 			<= 0) {
-		return false;
+		return res;
 	}
-	if (EVP_DigestSignUpdate(m_RSASignCtx.get(), Msg, MsgLen) <= 0) {
-		return false;
+	if (EVP_DigestSignUpdate(m_RSASignCtx.get(), Msg.data(), Msg.size()) <= 0) {
+		return res;
 	}
-	if (EVP_DigestSignFinal(m_RSASignCtx.get(), NULL, MsgLenEnc) <= 0) {
-		return false;
+	if (EVP_DigestSignFinal(m_RSASignCtx.get(), NULL, &MsgLenEnc) <= 0) {
+		return res;
 	}
-	*EncMsg = (unsigned char*) malloc(*MsgLenEnc);
-	if (EVP_DigestSignFinal(m_RSASignCtx.get(), *EncMsg, MsgLenEnc) <= 0) {
-		return false;
+	res.resize(MsgLenEnc);
+	if (EVP_DigestSignFinal(m_RSASignCtx.get(), reinterpret_cast<unsigned char*>(res.data()), &MsgLenEnc) <= 0) {
+		res.clear();
 	}
-
-	return true;
+	return res;
 }
 
 /*
@@ -85,15 +86,14 @@ bool RSASignProvider::RSASign(const char* Msg, size_t MsgLen,
  * в строку в формате base64
  */
 
-std::string RSASignProvider::RSASignBase64(const char* Msg, size_t MsgLen) {
-	char *sigbuf;
+std::string RSASignProvider::RSASignBase64(const std::vector<char> Msg) {
 
-	size_t siglen;
-	if (!RSASign(Msg, MsgLen, (unsigned char**)&sigbuf, &siglen)) {
+	std::vector<char> signature = RSASign(Msg);
+
+	if (signature.empty()) {
 		return "";
 	}
-
-	std::string result = base64_encode((unsigned char *)sigbuf, siglen );
+	std::string result = base64_encode(reinterpret_cast<const unsigned char*>(signature.data()), signature.size());
 	return result;
 }
 
@@ -135,8 +135,7 @@ void RSAVerifyProvider::LoadKey(const std::string & keyfile){
  * результат записывается в bool* Authentic
  */
 
-bool RSAVerifyProvider::RSAVerify(char* MsgSig, size_t MsgSigLen,
-		const char* Msg, size_t MsgLen, bool* Authentic) {
+bool RSAVerifyProvider::RSAVerify(const std::string& Sig, const std::string&  Msg, bool* Authentic) {
 	try {
 		*Authentic = false;
 		EVP_KEY_ptr pubKey (EVP_PKEY_new(), ::EVP_PKEY_free);
@@ -146,11 +145,12 @@ bool RSAVerifyProvider::RSAVerify(char* MsgSig, size_t MsgSigLen,
 				pubKey.get()) <= 0) {
 			throw std::runtime_error("internal error in signature");
 		}
-		if (EVP_DigestVerifyUpdate(m_RSAVerifyCtx.get(), Msg, MsgLen) <= 0) {
+		if (EVP_DigestVerifyUpdate(m_RSAVerifyCtx.get(), (const unsigned char*)(Msg.c_str()),
+				Msg.size()) <= 0) {
 			throw std::runtime_error("internal error in signature");
 		}
-		int AuthStatus = EVP_DigestVerifyFinal(m_RSAVerifyCtx.get(), (unsigned char*)MsgSig,
-				MsgSigLen);
+		int AuthStatus = EVP_DigestVerifyFinal(m_RSAVerifyCtx.get(), (const unsigned char*)Sig.c_str(),
+				Sig.size());
 		if (AuthStatus == 1) {
 			*Authentic = true;
 			return true;
@@ -173,12 +173,12 @@ bool RSAVerifyProvider::RSAVerify(char* MsgSig, size_t MsgSigLen,
  */
 
 bool RSAVerifyProvider::RSAVerifyBase64(const std::string & signature,
-		const char* Msg, size_t MsgLen) {
+		const std::string & content) {
 
 	bool Authentic;
 	std::string sig64  = base64_decode(signature);
 
-	RSAVerify(const_cast<char*>(sig64.c_str()), sig64.size(), Msg, MsgLen, &Authentic);
+	RSAVerify(sig64, content, &Authentic);
 
 	return (Authentic);
 }

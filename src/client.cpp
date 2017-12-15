@@ -67,13 +67,12 @@ public:
  */
 
 	std::string BasketPutFile(const std::string& basketid,
-			const std::string& filename, const void * content,
-			size_t content_len, const std::string &signature) {
+			const std::string& filename, const std::vector<char> content, const std::string &signature) {
 		BasketPutFileRequest request;
 		request.set_basketid(basketid);
 		request.set_filename(filename);
 		request.set_signature(signature);
-		request.set_content(content, content_len);
+		request.set_content(content.data(), content.size());
 		BasketPutFileResponse reply;
 		ClientContext context;
 
@@ -94,31 +93,29 @@ private:
 /* Вспомогательная функция для чтения содержимого файла в память
 * Аргументы:
 * const std::string& filename -- имя файла
-* char ** content -- указатель, в который сохраняется контент
-* Возвращает размер файла.
 * В случае ошибки чтения вызывает exit(1)
 */
 
-size_t ReadFileContents(const std::string& filename, char ** content) {
+std::vector<char> ReadFileContents(const std::string& filename) {
 	size_t length;
+	std::vector<char> res;
 	try {
 		struct stat st;
-		const char *str = filename.c_str();
-		stat(str, &st);
+		stat(filename.c_str(), &st);
 		length = st.st_size;
 		std::ifstream input(filename, std::ios::binary);
-		*content = new char[length];
 		if (!input)
-			throw std::string("cannot open file " + filename);
-		input.read(*content, length);
+			throw std::runtime_error("cannot open file " + filename);
+		res.resize(length);
+		input.read(res.data(), length);
 		if (input.fail())
-			throw std::string("error reading contents of " + filename);
+			throw std::runtime_error("error reading contents of " + filename);
 		input.close();
-	} catch (const std::string& ex) {
-		std::cout << "Error: " << ex << std::endl;
+	} catch (const std::runtime_error& ex) {
+		std::cout << "Error: " << ex.what() << std::endl;
 		exit(1);
 	}
-	return length;
+	return res;
 }
 
 int main(int argc, char** argv) {
@@ -140,9 +137,8 @@ int main(int argc, char** argv) {
 		RSAspace::RSASignProvider signer;
 		signer.LoadKey(options.key);
 // Загружаем и подписываем контент
-		char * content;
-		size_t content_len = ReadFileContents(options.filename, &content);
-		std::string signature = signer.RSASignBase64(content, content_len);
+		std::vector<char> content = ReadFileContents(options.filename);
+		std::string signature = signer.RSASignBase64(content);
 		if (signature == "") {
 			std::cout << "Internal error in signature" << std::endl;
 			exit(1);
@@ -151,13 +147,12 @@ int main(int argc, char** argv) {
 // Предварительно преобразуем имя файла, убрав пути
 		std::string res = client.BasketPutFile(options.basketid,
 				std::string(basename(const_cast<char*>(options.filename.c_str()))),
-				static_cast<void*>(content), content_len,
-				signature);
+				content, signature);
 		if(res != ""){
 			std::cout << res << std::endl;
 // Выводим результат
 		}
-		delete content;
+
 	}
 
 	return 0;
