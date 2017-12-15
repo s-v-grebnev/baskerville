@@ -41,7 +41,7 @@ bool FileOperator::PutFile(const std::string& filename,
 // Пытаемся создать корзину
 		if (mkdir(abs_filename.c_str(), 0777) == -1) {
 			if (errno != EEXIST) {
-				throw std::string("Error creating basket");
+				throw std::runtime_error("Error creating basket");
 			}
 		}
 // Формируем абсолютный путь до файла, убрав на всякий случай все лишние слэши
@@ -55,17 +55,17 @@ bool FileOperator::PutFile(const std::string& filename,
 			fout.write(static_cast<const char*>(content), content_len);
 			if (fout.bad()) {
 				fout.close();
-				throw std::string("Error saving file");
+				throw std::runtime_error("Error saving file");
 			}
 			fout.close();
 
 		} else
-			throw std::string("Error saving file");
+			throw std::runtime_error("Error saving file");
 
 	} catch (const InvalidBasket & ex) {
 		return false;
-	} catch (const std::string & ex) {
-		std::cout << "Error: " << ex << std::endl;
+	} catch (const std::runtime_error & ex) {
+		std::cout << "Error: " << ex.what() << std::endl;
 		exit(1);
 	}
 	return true;
@@ -101,8 +101,8 @@ std::vector<std::string> FileOperator::BasketLS(const std::string& basketid) {
 					closedir(dp);
 				}
 			}
-	} catch (const std::string & ex) {
-		std::cout << ex << std::endl;
+	} catch (const std::runtime_error & ex) {
+		std::cout << ex.what() << std::endl;
 	}
 	return result;
 }

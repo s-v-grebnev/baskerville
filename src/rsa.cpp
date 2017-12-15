@@ -33,21 +33,21 @@ void RSASignProvider::LoadKey(const std::string& keyfile) {
 		std::string s;
 		fh.open(keyfile);
 		if (!fh) {
-			throw std::string("error opening keyfile");
+			throw std::runtime_error("error opening keyfile");
 		}
 		fh.getline(buf, KEYREAD_BUFSIZE, '\t');
 		fh.close();
 		s = buf;
 		BIO_MEM_ptr keybio (BIO_new_mem_buf((void*) s.c_str(), -1), ::BIO_free);
 		if (keybio.get() == NULL) {
-			throw std::string("error loading RSA private key from file");
+			throw std::runtime_error("error loading RSA private key from file");
 		}
 		rsa = std::move(RSA_ptr(PEM_read_bio_RSAPrivateKey(keybio.get(), NULL, NULL, NULL), ::RSA_free));
 		if (rsa.get() == NULL) {
-			throw std::string("error loading RSA private key from file");
+			throw std::runtime_error("error loading RSA private key from file");
 		}
-	} catch (const std::string & ex) {
-		std::cout << "Cannot continue: " << ex << std::endl;
+	} catch (const std::runtime_error & ex) {
+		std::cout << "Cannot continue: " << ex.what() << std::endl;
 		exit(1);
 	}
 }
@@ -109,7 +109,7 @@ void RSAVerifyProvider::LoadKey(const std::string & keyfile){
 		std::string s;
 		fh.open(keyfile);
 		if (!fh) {
-			throw std::string("error opening keyfile");
+			throw std::runtime_error("error opening keyfile");
 		}
 		fh.getline(buf, KEYREAD_BUFSIZE, '\t');
 		fh.close();
@@ -117,14 +117,14 @@ void RSAVerifyProvider::LoadKey(const std::string & keyfile){
 
 		BIO_MEM_ptr keybio (BIO_new_mem_buf((void*) s.c_str(), -1), ::BIO_free);
 		if (keybio.get() == NULL) {
-			throw std::string("error loading RSA public key from file");
+			throw std::runtime_error("error loading RSA public key from file");
 			}
 		rsa = std::move(RSA_ptr(PEM_read_bio_RSA_PUBKEY(keybio.get(), NULL, NULL, NULL), ::RSA_free));
 		if (rsa.get() == NULL) {
-				throw std::string("error loading RSA public key from file");
+				throw std::runtime_error("error loading RSA public key from file");
 		}
-	} catch (const std::string & ex) {
-		std::cout << "Cannot continue: " << ex << std::endl;
+	} catch (const std::runtime_error & ex) {
+		std::cout << "Cannot continue: " << ex.what() << std::endl;
 		exit(1);
 	}
 }
@@ -144,10 +144,10 @@ bool RSAVerifyProvider::RSAVerify(char* MsgSig, size_t MsgSigLen,
 		EVP_MD_CTX_ptr m_RSAVerifyCtx ( EVP_MD_CTX_create(), ::EVP_MD_CTX_free);
 		if (EVP_DigestVerifyInit(m_RSAVerifyCtx.get(), NULL, EVP_sha512(), NULL,
 				pubKey.get()) <= 0) {
-			throw std::string("internal error in signature");
+			throw std::runtime_error("internal error in signature");
 		}
 		if (EVP_DigestVerifyUpdate(m_RSAVerifyCtx.get(), Msg, MsgLen) <= 0) {
-			throw std::string("internal error in signature");
+			throw std::runtime_error("internal error in signature");
 		}
 		int AuthStatus = EVP_DigestVerifyFinal(m_RSAVerifyCtx.get(), (unsigned char*)MsgSig,
 				MsgSigLen);
@@ -159,10 +159,10 @@ bool RSAVerifyProvider::RSAVerify(char* MsgSig, size_t MsgSigLen,
 			return true;
 		} else {
 			*Authentic = false;
-			throw std::string("internal error in signature");
+			throw std::runtime_error("internal error in signature");
 		}
-	} catch (std::string & ex) {
-		std::cout << "Internal error in signature";
+	} catch (std::runtime_error & ex) {
+		std::cout << ex.what() << std::endl;
 		exit(1);
 	}
 }
